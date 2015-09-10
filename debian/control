@@ -1,0 +1,12 @@
+Source: nagini
+Section: python
+Priority: optional
+Maintainer: Alexandr Litovchenko <zedlaa@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), python, dh-virtualenv (>= 0.9)
+Standards-Version: 3.9.2
+
+Package: python-nagini
+Architecture: all
+Pre-Depends: dpkg (>= 1.16.1), python2.7, ${misc:Pre-Depends}
+Depends: python (>= 2.7), python (<< 2.8), python-yaml, python-requests, python-jinja2
+Description:  library for working with azkaban jobs in python

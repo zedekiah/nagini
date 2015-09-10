@@ -1,0 +1,14 @@
+{%- if not type %}{%- set type = "command" %}{% endif -%}
+type={{ type }}
+{%- if dependencies %}
+dependencies={{ dependencies|join(", ") }}
+{% endif -%}
+{%- if retries > 0 %}
+retries={{ retries }}
+retry.backoff={{ retry_backoff }}
+{% endif -%}
+{%- if type == "command" %}
+command=python {{ name }}Launcher.py
+{% elif type == "flow" %}
+flow.name={{ name }}
+{% endif -%}

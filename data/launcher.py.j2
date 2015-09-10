@@ -1,0 +1,8 @@
+{% set module_name = import_path.split(".")|last -%}
+if __name__ == "__main__":
+    module = __import__("{{ import_path }}", fromlist=["{{ module_name }}"])
+    print "{{ module_name }}Launcher.py: module", module
+    job = module.{{ name }}()
+    print "{{ module_name }}Launcher.py: job", job
+    print "{{ module_name }}Launcher.py: about to job.execute()"
+    job.execute()
