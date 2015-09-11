@@ -58,6 +58,7 @@ class BaseJob(object):
                                                 "nagini_data")
         if not exists(self.props["working.dir.nagini"]):
             mkdir(self.props["working.dir.nagini"])
+        self.configure()
         print "Init props:"
         print json.dumps(self.props, ensure_ascii=False, indent=4)
         output = flatten(self.output())
@@ -95,6 +96,11 @@ class BaseJob(object):
     def clear_data_dir(self):
         if exists(self.props["working.dir.nagini"]):
             shutil.rmtree(self.props["working.dir.nagini"])
+
+    def configure(self):
+        """Additional method to configure instead __init__
+        Don't use __init__ to configure
+        """
 
 
 class UploadToMySqlJob(BaseJob):
