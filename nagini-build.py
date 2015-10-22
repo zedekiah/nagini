@@ -6,6 +6,7 @@ from nagini.builder.wrappers import FlowWrapper
 from os import getcwd, listdir, walk, remove
 from nagini import BaseFlow, EmbeddedFlow
 from nagini.client import AzkabanClient
+from copy import deepcopy
 import tempfile
 import argparse
 import inspect
@@ -45,7 +46,7 @@ class ProjectPackage(object):
         self.tmp_dir = tempfile.mkdtemp(prefix=self.name + "-")
         self.jobs = {}
 
-    def build(self, zip_filename=None):
+    def build(self, zip_filename=None, config=None):
         sys.path.insert(0, self.tmp_dir)
         self.base_dir = self.tmp_dir
         shutil.copytree(self.project_path, join(self.tmp_dir, self.name))
@@ -63,6 +64,12 @@ class ProjectPackage(object):
             self.zip_path = zip_filename
         else:
             _, self.zip_path = tempfile.mkstemp(".zip", self.name + "-")
+
+        if config:
+            config = deepcopy(config)
+            config["project"] = self.name
+            with open(join(self.base_dir, "config.yml"), "w") as fd:
+                yaml.dump(config, fd)
 
         shutil.make_archive(
             remove_ext(self.zip_path),
@@ -137,7 +144,7 @@ def main():
                     )
                 else:
                     project = ProjectPackage(join(args.root, item))
-                    project.build()
+                    project.build(config=config)
                     projects.append(project)
 
     print "Uploading projects:"
@@ -147,7 +154,7 @@ def main():
         client.upload_project_zip(item.name, item.zip_path)
         sys.stdout.write("{0:>4}\n".format("OK"))
         sys.stdout.flush()
-
+        item.clear()
 
 if __name__ == "__main__":
     main()

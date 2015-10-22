@@ -88,3 +88,29 @@ class AzkabanClient(object):
     def get_execution_info(self, exec_id):
         return self._call_api("get", "executor",
                               {"ajax": "fetchexecflow", "execid": exec_id})
+
+    def get_job_logs(self, exec_id, job_name, offset=0, length=None):
+        if length:
+            return self._call_api("get", "executor", {
+                "ajax": "fetchExecJobLogs",
+                "execid": exec_id,
+                "jobId": job_name,
+                "offset": offset,
+                "length": length
+            })
+        else:
+            result = {"data": "", "length": None, "offset": offset}
+            while True:
+                ret = self._call_api("get", "executor", {
+                    "ajax": "fetchExecJobLogs",
+                    "execid": exec_id,
+                    "jobId": job_name,
+                    "offset": offset,
+                    "length": 10000
+                })
+                result["data"] += ret["data"]
+                if ret["length"] < 10000:
+                    break
+                offset += 10000
+            result["length"] = len(result["data"])
+            return result

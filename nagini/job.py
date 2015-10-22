@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 from nagini.properties import load_properties, save_properties
 from nagini.utility import flatten
+from nagini.target import Target
 from os.path import join, exists
 from os import mkdir, environ
 import subprocess
@@ -34,9 +35,18 @@ class BaseJob(object):
         """
         requires = self.requires()
         if isinstance(requires, (tuple, list, set)):
+            for job in requires:
+                job.configure()
             return [r.output() for r in requires]
-        else:
+        elif isinstance(requires, BaseJob):
+            requires.configure()
             return requires.output()
+        elif isinstance(requires, dict):
+            for item in requires.itervalues():
+                item.configure()
+            return {k: v.output() for k, v in requires.iteritems()}
+        else:
+            raise ValueError("requires() must return BaseJob or list[BaseJob]")
 
     def is_complete(self):
         return False
@@ -56,8 +66,11 @@ class BaseJob(object):
         self.props = load_properties()
         self.props["working.dir.nagini"] = join(self.props["working.dir"],
                                                 "nagini_data")
-        if not exists(self.props["working.dir.nagini"]):
+        # if not exists(self.props["working.dir.nagini"]):
+        try:
             mkdir(self.props["working.dir.nagini"])
+        except OSError:
+            pass
         self.configure()
         print "Init props:"
         print json.dumps(self.props, ensure_ascii=False, indent=4)
@@ -165,6 +178,7 @@ class MySqlQueryJob(BaseJob):
     table = None
     fields = None
     sql = None
+    sort_by = None  # works only with fields
 
     def run(self):
         sql = "SELECT {fields} FROM {table}".format(
@@ -190,7 +204,25 @@ class MySqlQueryJob(BaseJob):
 
         if self.output():
             with open(self.output().path, "wb") as fd:
-                subprocess.check_call(args, stdout=fd.fileno())
+                if self.sort_by is not None:
+                    if isinstance(self.sort_by, int):
+                        field_n = self.sort_by
+                    else:
+                        field_n = self.fields.index(self.sort_by) + 1
+                    qp = subprocess.Popen(args, stdout=subprocess.PIPE)
+                    sort_cmd = ["sort", "-k{0},{0}".format(field_n),
+                                "-t", "\t"]
+                    sort = subprocess.Popen(sort_cmd,
+                                            stdin=qp.stdout, stdout=fd,
+                                            env={"LC_ALL": "C", "LANG": "C"})
+                    if qp.wait():
+                        raise subprocess.CalledProcessError(qp.returncode,
+                                                            args)
+                    if sort.wait():
+                        raise subprocess.CalledProcessError(sort.returncode,
+                                                            sort_cmd)
+                else:
+                    subprocess.check_call(args, stdout=fd.fileno())
         else:
             subprocess.check_call(args)
 
