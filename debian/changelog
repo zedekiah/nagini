@@ -1,3 +1,47 @@
+nagini (0.6) unstable; urgency=low
+
+  * Change propertries class from dict to Propertries
+  * Add get_list method to Propertries
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 15 Apr 2016 17:33:34 +0300
+
+nagini (0.5-1) unstable; urgency=low
+
+  * Fix loading project config in job
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 13 Apr 2016 11:29:51 +0300
+
+nagini (0.5) unstable; urgency=low
+
+  * Add config propertry with project config to BaseJob 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 13 Apr 2016 11:16:59 +0300
+
+nagini (0.4) unstable; urgency=low
+
+  * Fix job logger 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Tue, 19 Jan 2016 16:59:19 +0300
+
+nagini (0.3) unstable; urgency=low
+
+  * Fix job builder 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Tue, 19 Jan 2016 13:00:08 +0300
+
+nagini (0.2) unstable; urgency=low
+
+  * Add method for configuring jobs (BaseJob::configure)
+  * Project pack config in self
+  * Builder: return cleanup json repsonce when building and sending
+  * Add AzkabanClient::get_job_logs
+  * Add ability to run flow from flow class (in same project)
+  * Add ability to return dict in BaseJob::requires
+  * Add unix-sort options of MySqlQueryJob
+  * Add logging
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Mon, 21 Dec 2015 16:45:10 +0300
+
 nagini (0.1) unstable; urgency=low
 
   * Initial release
