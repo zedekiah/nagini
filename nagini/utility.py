@@ -1,4 +1,9 @@
 # -*- coding: utf8 -*-
+from properties import load_properties
+from collections import defaultdict
+import logging
+import os
+import re
 
 
 def flatten(obj):
@@ -47,3 +52,17 @@ def require(module_path, fromlist):
     print "print globals()"
     for key, value in globals().iteritems():
         print key, "=", value
+
+
+class JobLogHandler(logging.FileHandler):
+    def __init__(self, filename, mode='a', encoding=None, delay=0):
+        filename = filename.format(
+            env=defaultdict(lambda: "unknown", os.environ),
+            props=defaultdict(lambda: "unknown", load_properties())
+        )
+        try:
+            os.makedirs(os.path.dirname(filename))
+        except OSError as e:
+            if not e.errno == 17:  # 17 - Directory already exists
+                raise
+        super(JobLogHandler, self).__init__(filename, mode, encoding, delay)

@@ -1,0 +1,24 @@
+logging:
+  version:                1
+  formatters:
+    stdout:
+      format:             "[%(levelname)8s]: %(message)s"
+    generic:
+      format:             "%(asctime)s [%(levelname)8s]: %(message)s"
+      datefmt:            "%Y-%m-%d %H:%M:%S"
+  handlers:
+    stdout:
+      class:              logging.StreamHandler
+      level:              DEBUG
+      formatter:          stdout
+      stream:             ext://sys.stdout
+    file:
+      class:              nagini.utility.JobLogHandler
+      level:              DEBUG
+      formatter:          generic
+      filename:           "{props[working.dir]}/nagini_logs/{env[JOB_NAME]}.log"
+      encoding:           utf8
+  loggers:
+    nagini.job:
+      level:              DEBUG
+      handlers:           ["stdout", "file"]
