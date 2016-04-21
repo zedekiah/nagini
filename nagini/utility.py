@@ -6,6 +6,9 @@ import os
 import re
 
 
+FLOAT_RE = r'^\d+\.\d*$'
+
+
 def flatten(obj):
     """Creates a flat list of all all items in structured output
     (dicts, lists, items)
@@ -66,3 +69,41 @@ class JobLogHandler(logging.FileHandler):
             if not e.errno == 17:  # 17 - Directory already exists
                 raise
         super(JobLogHandler, self).__init__(filename, mode, encoding, delay)
+
+
+def parse_list(value, val_func='auto'):
+    """Parse value with key=name and transform it to list.
+    If val_vun
+
+    :param str name:
+    :param func val_func:
+    :return:
+    """
+    value = value.strip().strip(',')
+    if value:
+        value_list = [v.strip() for v in value.split(',')]
+        if val_func == 'auto':
+            return [_parse_value(v) for v in value_list]
+        elif val_func:
+            return [val_func(v) for v in value_list]
+        else:
+            return value_list
+    else:
+        return []
+
+
+def _parse_value(val):
+    """Return proper typed value
+
+    :param str val: value as a string
+    :rtype: str|unicode|int|float|long
+    """
+    if re.match(FLOAT_RE, val):
+        return float(val)
+    elif val.isdigit():  # auto int and long
+        return int(val)
+    else:
+        try:
+            return val.decode('utf8')
+        except UnicodeDecodeError:
+            return val

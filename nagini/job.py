@@ -3,6 +3,7 @@ from nagini.properties import load_properties, save_properties
 from dateutil.rrule import rrule, MO, MONTHLY, WEEKLY, DAILY
 from dateutil.relativedelta import relativedelta
 from abc import ABCMeta, abstractmethod
+from nagini.fields import BaseField
 from nagini.utility import flatten
 from nagini.target import Target
 from os.path import join, exists
@@ -93,6 +94,7 @@ class BaseJob(object):
             mkdir(self.props["working.dir.nagini"])
         except OSError:
             pass
+        self._define_fields()
         self.configure()
         self.logger.info("Init props:\n" +
                          json.dumps(self.props, ensure_ascii=False, indent=4))
@@ -136,6 +138,14 @@ class BaseJob(object):
         """Additional method to configure instead __init__
         Don't use __init__ to configure
         """
+
+    def _define_fields(self):
+        for name, field in self.__dict__.iteritems():
+            if isinstance(field, BaseField):
+                if field.require and name not in self.props:
+                    raise KeyError('Property "%s" not set '
+                                   'in props (required)' % name)
+                setattr(self, name, field.to_python(self.props.get(name)))
 
 
 class UploadToMySqlJob(BaseJob):

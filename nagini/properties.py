@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
+from nagini.utility import parse_list
 import json
 import os
-import re
 
 
 class Properties(dict):
@@ -34,34 +34,7 @@ class Properties(dict):
         :param func val_func:
         :return:
         """
-        value = self.get(name, '').strip().strip(',')
-        if value:
-            value_list = [v.strip() for v in value.split(',')]
-            if val_func == 'auto':
-                return [Properties._parse_value(v) for v in value_list]
-            elif val_func:
-                return [val_func(v) for v in value_list]
-            else:
-                return value_list
-        else:
-            return []
-
-    @staticmethod
-    def _parse_value(val):
-        """Return proper typed value
-
-        :param str val: value as a string
-        :rtype: str|unicode|int|float|long
-        """
-        if re.match(Properties.FLOAT_RE, val):
-            return float(val)
-        elif val.isdigit():  # auto int and long
-            return int(val)
-        else:
-            try:
-                return val.decode('utf8')
-            except UnicodeDecodeError:
-                return val
+        return parse_list(self.get(name, ''), val_func)
 
 
 def load_properties():
