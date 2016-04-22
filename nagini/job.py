@@ -142,6 +142,7 @@ class BaseJob(object):
     def _define_fields(self):
         for name, field in self.__dict__.iteritems():
             if isinstance(field, BaseField):
+                field.name = name
                 if field.require and name not in self.props:
                     raise KeyError('Property "%s" not set '
                                    'in props (required)' % name)

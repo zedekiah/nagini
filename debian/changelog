@@ -1,3 +1,15 @@
+nagini (0.8) unstable; urgency=low
+
+  * Add new fields: Regexp, Date, DateTime, StringMonth 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 22 Apr 2016 14:50:59 +0300
+
+nagini (0.7) unstable; urgency=low
+
+  * Add fields to jobs as props 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 21 Apr 2016 20:07:29 +0300
+
 nagini (0.6) unstable; urgency=low
 
   * Change propertries class from dict to Propertries

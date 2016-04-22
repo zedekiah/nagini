@@ -1,9 +1,13 @@
 # -*- coding: utf8 -*-
 from nagini.utility import parse_list
+from datetime import datetime
 import json
+import re
 
 
 class BaseField(object):
+    name = ''
+
     def __init__(self, default=None, require=True, *args, **kwargs):
         self.default = default
         self.require = require
@@ -29,6 +33,44 @@ class BaseField(object):
 
 class StringField(BaseField):
     pass
+
+
+class RegexpField(BaseField):
+    def __init__(self, regexp, default=None, require=True):
+        super(RegexpField, self).__init__(default, require)
+        self.regexp = regexp
+
+    def _to_python(self, value):
+        if not re.match(self.regexp, value):
+            raise ValueError(
+                'Value "%s" not match pattern "%s" for property "%s"' %
+                (value, self.regexp, self.name)
+            )
+        return value
+
+
+class DateField(BaseField):
+    def __init__(self, fmt='%Y-%m-%d', default=None, require=True):
+        super(DateField, self).__init__(default, require)
+        self.fmt = fmt
+
+    def _to_python(self, value):
+        return datetime.strptime(self.fmt, value).date()
+
+
+class DateTimeField(BaseField):
+    def __init__(self, fmt='%Y-%m-%d %H:%M:%S', default=None, require=True):
+        super(DateTimeField, self).__init__(default, require)
+        self.fmt = fmt
+
+    def _to_python(self, value):
+        return datetime.strptime(self.fmt, value)
+
+
+class StringMonthField(RegexpField):
+    def __init__(self, regexp=r'^20\d{2}-(0?[1-9]|1[012])$',
+                 default=None, require=True):
+        super(StringMonthField, self).__init__(regexp=regexp)
 
 
 class UnicodeField(BaseField):
