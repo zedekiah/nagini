@@ -43,6 +43,8 @@ class BaseJob(object):
             with open(join(self.props['working.dir'], 'config.yml')) as fd:
                 self.config = yaml.load(fd)
 
+        self._fields = []
+
     def requires(self):
         """Override me!"""
         return []
@@ -111,6 +113,7 @@ class BaseJob(object):
                 self.run()
             for key, value in self.env.iteritems():
                 self.props["env.%s" % key] = value
+            self._save_fields()
             save_properties(self.props)
             if self._check_output_at_end and not all(t.exists() for t in output):
                 raise Exception("Not all output target exists "
@@ -147,6 +150,13 @@ class BaseJob(object):
                     raise KeyError('Property "%s" not set '
                                    'in props (required)' % name)
                 setattr(self, name, field.to_python(self.props.get(name)))
+
+    def _save_fields(self):
+        for name in self._fields:
+            value = getattr(self, name)
+            if isinstance(value, unicode):
+                value = value.encode('utf8')
+            self.props[name] = str(value)
 
 
 class UploadToMySqlJob(BaseJob):

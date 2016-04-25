@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
-from properties import load_properties
 from collections import defaultdict
+import properties
 import logging
 import os
 import re
@@ -61,7 +61,7 @@ class JobLogHandler(logging.FileHandler):
     def __init__(self, filename, mode='a', encoding=None, delay=0):
         filename = filename.format(
             env=defaultdict(lambda: "unknown", os.environ),
-            props=defaultdict(lambda: "unknown", load_properties())
+            props=defaultdict(lambda: "unknown", properties.load_properties())
         )
         try:
             os.makedirs(os.path.dirname(filename))
