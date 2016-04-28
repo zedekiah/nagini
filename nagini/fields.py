@@ -6,11 +6,13 @@ import re
 
 
 class BaseField(object):
-    name = ''
+    name = None
 
-    def __init__(self, default=None, require=True, *args, **kwargs):
+    def __init__(self, default=None, require=True, prop_name=None,
+                 *args, **kwargs):
         self.default = default
         self.require = require
+        self.name = prop_name
 
     def to_python(self, value):
         """Return default if value is None otherwise return
@@ -36,8 +38,8 @@ class StringField(BaseField):
 
 
 class RegexpField(BaseField):
-    def __init__(self, regexp, default=None, require=True):
-        super(RegexpField, self).__init__(default, require)
+    def __init__(self, regexp, default=None, require=True, prop_name=None):
+        super(RegexpField, self).__init__(default, require, prop_name)
         self.regexp = regexp
 
     def _to_python(self, value):
@@ -50,8 +52,9 @@ class RegexpField(BaseField):
 
 
 class DateField(BaseField):
-    def __init__(self, fmt='%Y-%m-%d', default=None, require=True):
-        super(DateField, self).__init__(default, require)
+    def __init__(self, fmt='%Y-%m-%d', default=None, require=True,
+                 prop_name=None):
+        super(DateField, self).__init__(default, require, prop_name)
         self.fmt = fmt
 
     def _to_python(self, value):
@@ -59,8 +62,9 @@ class DateField(BaseField):
 
 
 class DateTimeField(BaseField):
-    def __init__(self, fmt='%Y-%m-%d %H:%M:%S', default=None, require=True):
-        super(DateTimeField, self).__init__(default, require)
+    def __init__(self, fmt='%Y-%m-%d %H:%M:%S', default=None, require=True,
+                 prop_name=None):
+        super(DateTimeField, self).__init__(default, require, prop_name)
         self.fmt = fmt
 
     def _to_python(self, value):
@@ -69,13 +73,16 @@ class DateTimeField(BaseField):
 
 class StringMonthField(RegexpField):
     def __init__(self, regexp=r'^20\d{2}-(0?[1-9]|1[012])$',
-                 default=None, require=True):
-        super(StringMonthField, self).__init__(regexp=regexp)
+                 default=None, require=True, prop_name=None):
+        super(StringMonthField, self).__init__(regexp=regexp, default=default,
+                                               require=require,
+                                               prop_name=prop_name)
 
 
 class UnicodeField(BaseField):
-    def __init__(self, default=None, require=True, encoding='utf8'):
-        super(UnicodeField, self).__init__(default, require)
+    def __init__(self, default=None, require=True, encoding='utf8',
+                 prop_name=None):
+        super(UnicodeField, self).__init__(default, require, prop_name)
         self.encoding = encoding
 
     def _to_python(self, value):
@@ -93,8 +100,9 @@ class FloatField(BaseField):
 
 
 class ListField(BaseField):
-    def __init__(self, default=None, require=True, val_func='auto'):
-        super(ListField, self).__init__(default, require)
+    def __init__(self, default=None, require=True, prop_name=None,
+                 val_func='auto'):
+        super(ListField, self).__init__(default, require, prop_name)
         self.val_func = val_func
 
     def _to_python(self, value):

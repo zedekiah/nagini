@@ -145,11 +145,13 @@ class BaseJob(object):
     def _define_fields(self):
         for name, field in self.__dict__.iteritems():
             if isinstance(field, BaseField):
-                field.name = name
-                if field.require and name not in self.props:
+                prop_name = field.name or name
+                if field.name is None:
+                    field.name = name
+                if field.require and prop_name not in self.props:
                     raise KeyError('Property "%s" not set '
-                                   'in props (required)' % name)
-                setattr(self, name, field.to_python(self.props.get(name)))
+                                   'in props (required)' % prop_name)
+                setattr(self, name, field.to_python(self.props.get(prop_name)))
 
     def _save_fields(self):
         for name in self._fields:
