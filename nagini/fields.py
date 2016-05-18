@@ -21,7 +21,11 @@ class BaseField(object):
         :param str value:
         """
         if value is None:
-            return self.default
+            if self.require and self.default is None:
+                raise KeyError('Property "%s" not set '
+                               'in props (required)' % self.name)
+            else:  # If not required than return None or return default
+                return self.default
         else:
             return self._to_python(value)
 
@@ -31,6 +35,13 @@ class BaseField(object):
         :param str value: string value
         """
         return value
+
+    def dump(self, value):
+        """Return str typed value for saving
+
+        :param value: typed value
+        """
+        return str(value)
 
 
 class StringField(BaseField):
@@ -58,7 +69,10 @@ class DateField(BaseField):
         self.fmt = fmt
 
     def _to_python(self, value):
-        return datetime.strptime(self.fmt, value).date()
+        return datetime.strptime(value, self.fmt).date()
+
+    def dump(self, value):
+        return value.strftime(self.fmt)
 
 
 class DateTimeField(BaseField):
@@ -68,7 +82,10 @@ class DateTimeField(BaseField):
         self.fmt = fmt
 
     def _to_python(self, value):
-        return datetime.strptime(self.fmt, value)
+        return datetime.strptime(value, self.fmt)
+
+    def dump(self, value):
+        return value.strftime(self.fmt)
 
 
 class StringMonthField(RegexpField):
@@ -88,10 +105,21 @@ class UnicodeField(BaseField):
     def _to_python(self, value):
         return value.decode(self.encoding)
 
+    def dump(self, value):
+        return value.encode(self.encoding)
+
 
 class IntField(BaseField):
     def _to_python(self, value):
         return int(value)
+
+
+class BooleanField(BaseField):
+    def _to_python(self, value):
+        if value.lower() in ('0', 'false', 'no'):
+            return False
+        else:
+            return True
 
 
 class FloatField(BaseField):

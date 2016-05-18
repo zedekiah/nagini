@@ -1,30 +1,41 @@
 # -*- coding: utf8 -*-
 from nagini.utility import parse_list
+import logging
 import json
 import os
+
+
+logger = logging.getLogger('nagini.properties')
 
 
 class Properties(dict):
     FLOAT_RE = r'^\d+\.\d*$'
 
-    def load(self):
-        if "JOB_PROP_FILE" in os.environ:
-            with open(os.environ["JOB_PROP_FILE"]) as fd:
-                for line in fd:
-                    line = line.strip()
-                    if not line.startswith("#"):
-                        name, value = line.split("=", 1)
-                        dict.__setitem__(self, name, value)
-        else:
-            print "No JOB_PROP_FILE"
+    def load(self, filename=None):
+        if filename is None:
+            if 'JOB_PROP_FILE' in os.environ:
+                filename = os.environ['JOB_PROP_FILE']
+            else:
+                logger.warning('No JOB_PROP_FILE in os.environ')
+                return
 
-    def dump(self):
-        if "JOB_OUTPUT_PROP_FILE" in os.environ:
-            with open(os.environ["JOB_OUTPUT_PROP_FILE"], "w") as fd:
-                # json.dump(self.output_props, fd)
-                json.dump(self, fd)
-        else:
-            print "No JOB_OUTPUT_PROP_FILE"
+        with open(filename) as fd:
+            for line in fd:
+                line = line.strip()
+                if not line.startswith('#'):
+                    name, value = line.split('=', 1)
+                    self[name] = value.replace(r'\:', ':')
+
+    def dump(self, filename=None):
+        if filename is None:
+            if 'JOB_OUTPUT_PROP_FILE' in os.environ:
+                filename = os.environ['JOB_OUTPUT_PROP_FILE']
+            else:
+                logger.warning('No JOB_OUTPUT_PROP_FILE int os.environ')
+                return
+
+        with open(filename, 'w') as fd:
+            json.dump(self, fd)
 
     def get_list(self, name, val_func='auto'):
         """Parse value with key=name and transform it to list.
@@ -36,24 +47,12 @@ class Properties(dict):
         """
         return parse_list(self.get(name, ''), val_func)
 
-
-def load_properties():
-    props = Properties()
-    if "JOB_PROP_FILE" in os.environ:
-        with open(os.environ["JOB_PROP_FILE"]) as fd:
-            for line in fd:
-                line = line.strip()
-                if not line.startswith("#"):
-                    name, value = line.split("=", 1)
-                    props[name] = value.replace(r"\:", ":")
-    # else:
-    #     print "No JOB_PROP_FILE"
-    return props
+    def update_not_override(self, other):
+        """Like `update` but not override existing keys"""
+        for k, v in other.iteritems():
+            if k not in self:
+                self[k] = v
 
 
-def save_properties(props):
-    if "JOB_OUTPUT_PROP_FILE" in os.environ:
-        with open(os.environ["JOB_OUTPUT_PROP_FILE"], "w") as fd:
-            json.dump(props, fd)
-    else:
-        print "No JOB_OUTPUT_PROP_FILE"
+props = Properties()
+props.load()

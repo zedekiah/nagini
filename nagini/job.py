@@ -1,12 +1,13 @@
 # -*- coding: utf8 -*-
-from nagini.properties import load_properties, save_properties
 from dateutil.rrule import rrule, MO, MONTHLY, WEEKLY, DAILY
 from dateutil.relativedelta import relativedelta
 from abc import ABCMeta, abstractmethod
 from nagini.fields import BaseField
+from nagini.properties import props
 from nagini.utility import flatten
 from nagini.target import Target
 from os.path import join, exists
+from inspect import getmembers
 from os import mkdir, environ
 from datetime import datetime
 from copy import deepcopy
@@ -25,9 +26,19 @@ class BaseJob(object):
     retries = 0
     retry_backoff = 0
     config = None
+    _fields = None
 
     def __init__(self):
-        self.props = load_properties()
+        fields = {}
+        predicate = lambda f: isinstance(f, BaseField)
+        for name, field in getmembers(self.__class__, predicate):
+            if field.name is None:
+                field.name = name
+            fields[name] = field
+            if field.name not in props and field.default:
+                props[field.name] = field.default
+        self._fields = fields
+
         self.env = environ.copy()
         if exists('/etc/nagini.yml'):
             with open('/etc/nagini.yml') as fd:
@@ -36,14 +47,12 @@ class BaseJob(object):
                     logging.config.dictConfig(config['logging'])
         self.logger = logging.getLogger('nagini.job.%s' %
                                         self.__class__.__name__)
-        if 'working.dir' in self.props:
-            self.props['working.dir.nagini'] = join(self.props['working.dir'],
-                                                    'nagini_data')
+        if 'working.dir' in props:
+            props['working.dir.nagini'] = join(props['working.dir'],
+                                               'nagini_data')
 
-            with open(join(self.props['working.dir'], 'config.yml')) as fd:
+            with open(join(props['working.dir'], 'config.yml')) as fd:
                 self.config = yaml.load(fd)
-
-        self._fields = []
 
     def requires(self):
         """Override me!"""
@@ -88,18 +97,15 @@ class BaseJob(object):
         pass
 
     def execute(self):
-        self.props = load_properties()
-        self.props["working.dir.nagini"] = join(self.props["working.dir"],
-                                                "nagini_data")
+        props["working.dir.nagini"] = join(props["working.dir"], "nagini_data")
         # if not exists(self.props["working.dir.nagini"]):
         try:
-            mkdir(self.props["working.dir.nagini"])
+            mkdir(props["working.dir.nagini"])
         except OSError:
             pass
-        self._define_fields()
         self.configure()
         self.logger.info("Init props:\n" +
-                         json.dumps(self.props, ensure_ascii=False, indent=4))
+                         json.dumps(props, ensure_ascii=False, indent=4))
         output = flatten(self.output())
         if not output:
             self._check_output_at_start = False
@@ -112,9 +118,8 @@ class BaseJob(object):
                 self.logger.info('Nagini: about to execute "run" method')
                 self.run()
             for key, value in self.env.iteritems():
-                self.props["env.%s" % key] = value
-            self._save_fields()
-            save_properties(self.props)
+                props["env.%s" % key] = value
+
             if self._check_output_at_end and not all(t.exists() for t in output):
                 raise Exception("Not all output target exists "
                                 "at end of the job")
@@ -125,40 +130,41 @@ class BaseJob(object):
             self.on_failure()
             raise
 
-    def rupdate_props(self, props):
+    def rupdate_props(self, other):
         """Like self.props.update but not override existing props"""
-        props.update(self.props)
-        self.props = props
+        props.update_not_override(other)
 
-    def data_path(self, path=""):
-        return join(self.props["working.dir.nagini"], path)
+    @staticmethod
+    def data_path(path=''):
+        return join(props["working.dir.nagini"], path)
 
-    def clear_data_dir(self):
-        if exists(self.props["working.dir.nagini"]):
-            shutil.rmtree(self.props["working.dir.nagini"])
+    @staticmethod
+    def clear_data_dir():
+        if exists(props["working.dir.nagini"]):
+            shutil.rmtree(props["working.dir.nagini"])
 
     def configure(self):
         """Additional method to configure instead __init__
         Don't use __init__ to configure
         """
 
-    def _define_fields(self):
-        for name, field in self.__dict__.iteritems():
-            if isinstance(field, BaseField):
-                prop_name = field.name or name
-                if field.name is None:
-                    field.name = name
-                if field.require and prop_name not in self.props:
-                    raise KeyError('Property "%s" not set '
-                                   'in props (required)' % prop_name)
-                setattr(self, name, field.to_python(self.props.get(prop_name)))
+    def __getattribute__(self, name):
+        fields = object.__getattribute__(self, '_fields')
+        if fields and name in fields:
+            field = fields[name]
+            return field.to_python(props.get(field.name))
+        else:
+            return object.__getattribute__(self, name)
 
-    def _save_fields(self):
-        for name in self._fields:
-            value = getattr(self, name)
-            if isinstance(value, unicode):
-                value = value.encode('utf8')
-            self.props[name] = str(value)
+    def __setattr__(self, key, value):
+        if self._fields and key in self._fields:
+            props[self._fields[key].name] = value
+        else:
+            return object.__setattr__(self, key, value)
+
+    @property
+    def props(self):
+        return props
 
 
 class UploadToMySqlJob(BaseJob):

@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
-from nagini.properties import load_properties, save_properties
 from nagini.client import AzkabanClient
+from nagini.properties import props
 from os.path import join
 import yaml
 import abc
@@ -12,9 +12,6 @@ class BaseFlow(object):
     retries = 0
     retry_backoff = 0
 
-    def __init__(self):
-        self.props = load_properties()
-
     @abc.abstractmethod
     def requires(self):
         return []
@@ -24,7 +21,6 @@ class BaseFlow(object):
 
     def execute(self):
         self.run()
-        save_properties(self.props)
 
     @classmethod
     def start(cls, properties=None, concurrent_option="skip"):
@@ -35,7 +31,6 @@ class BaseFlow(object):
         pipeline, queue
         :rtype:
         """
-        props = load_properties()
         # LOAD CONFIG
         with open(join(props["working.dir"], "config.yml")) as fd:
             config = yaml.load(fd)

@@ -1,6 +1,5 @@
 # -*- coding: utf8 -*-
 from collections import defaultdict
-import properties
 import logging
 import os
 import re
@@ -59,9 +58,10 @@ def require(module_path, fromlist):
 
 class JobLogHandler(logging.FileHandler):
     def __init__(self, filename, mode='a', encoding=None, delay=0):
+        from nagini.properties import props
         filename = filename.format(
             env=defaultdict(lambda: "unknown", os.environ),
-            props=defaultdict(lambda: "unknown", properties.load_properties())
+            props=defaultdict(lambda: "unknown", props)
         )
         try:
             os.makedirs(os.path.dirname(filename))
@@ -79,7 +79,7 @@ def parse_list(value, val_func='auto'):
     :param func val_func:
     :return:
     """
-    value = value.strip().strip(',')
+    value = value.strip().strip('[]').strip(',')
     if value:
         value_list = [v.strip() for v in value.split(',')]
         if val_func == 'auto':

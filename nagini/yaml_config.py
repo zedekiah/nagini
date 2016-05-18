@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 
 class YamlConfig(object):
-    def __init__(self, filename='/etc/nagini.other.yaml'):
+    def __init__(self, filename='/etc/nagini.other.yml'):
         self.filename = expanduser(filename)
         if exists(self.filename):
             with open(self.filename) as fd:

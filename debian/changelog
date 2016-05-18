@@ -1,3 +1,71 @@
+nagini (0.13-3) unstable; urgency=low
+
+  * Supress warning messages to stdout of nagini.properties 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 18 May 2016 13:38:11 +0300
+
+nagini (0.13-2) unstable; urgency=low
+
+  * Change default nagini other yaml config to nagini.other.yml 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 18 May 2016 11:27:56 +0300
+
+nagini (0.13-1) unstable; urgency=low
+
+  * Fix problem with Properties.update_not_override
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 13 May 2016 14:16:29 +0300
+
+nagini (0.13) unstable; urgency=low
+
+  * Add BooleanField
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 12 May 2016 13:08:52 +0300
+
+nagini (0.12-6) unstable; urgency=low
+
+  * Fix problems with Date and DateTime fields
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 06 May 2016 16:17:19 +0300
+
+nagini (0.12-5) unstable; urgency=low
+
+  * Fix default values in fields 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 06 May 2016 16:12:37 +0300
+
+nagini (0.12-4) unstable; urgency=low
+
+  * Fix problems with new properties and fields system 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 06 May 2016 15:58:55 +0300
+
+nagini (0.12-3) unstable; urgency=low
+
+  * Another fix of get field in job 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 05 May 2016 18:48:48 +0300
+
+nagini (0.12-2) unstable; urgency=low
+
+  * Fix problem with recursion calling 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 05 May 2016 18:40:02 +0300
+
+nagini (0.12-1) unstable; urgency=low
+
+  * Fix loop importing
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 05 May 2016 18:31:06 +0300
+
+nagini (0.12) unstable; urgency=low
+
+  * Make props global
+  * Load props in launcher
+  * New field system
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 05 May 2016 18:28:15 +0300
+
 nagini (0.11) unstable; urgency=low
 
   * Add prop_name arg for every field 
