@@ -1,3 +1,22 @@
+nagini (0.17) unstable; urgency=low
+
+  * Bug fixing and small changes 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 17 Jun 2016 15:44:47 +0300
+
+nagini (0.16) unstable; urgency=low
+
+  * Set delay writing log in log handler
+  * Add record_count method to LocalTarget
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Tue, 31 May 2016 16:00:44 +0300
+
+nagini (0.15) unstable; urgency=low
+
+  * Add error if upload project zip fails
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 25 May 2016 18:26:01 +0300
+
 nagini (0.14) unstable; urgency=low
 
   * Now load porperties in launcher 

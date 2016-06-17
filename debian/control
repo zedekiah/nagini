@@ -2,7 +2,7 @@ Source: nagini
 Section: python
 Priority: optional
 Maintainer: Alexandr Litovchenko <zedlaa@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), python, dh-virtualenv (>= 0.9)
+Build-Depends: debhelper (>= 8.0.0), python
 Standards-Version: 3.9.2
 
 Package: python-nagini

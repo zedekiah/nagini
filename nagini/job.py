@@ -20,8 +20,8 @@ import yaml
 
 
 class BaseJob(object):
-    _check_output_at_start = True
-    _check_output_at_end = True
+    _check_output_at_start = False
+    _check_output_at_end = False
     name = None
     retries = 0
     retry_backoff = 0

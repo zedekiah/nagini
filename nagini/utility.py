@@ -57,18 +57,22 @@ def require(module_path, fromlist):
 
 
 class JobLogHandler(logging.FileHandler):
-    def __init__(self, filename, mode='a', encoding=None, delay=0):
+    def __init__(self, filename, mode='a', encoding=None):
         from nagini.properties import props
         filename = filename.format(
             env=defaultdict(lambda: "unknown", os.environ),
             props=defaultdict(lambda: "unknown", props)
         )
+
+        super(JobLogHandler, self).__init__(filename, mode, encoding, True)
+
+    def _open(self):
         try:
-            os.makedirs(os.path.dirname(filename))
+            os.makedirs(os.path.dirname(self.baseFilename))
         except OSError as e:
             if not e.errno == 17:  # 17 - Directory already exists
                 raise
-        super(JobLogHandler, self).__init__(filename, mode, encoding, delay)
+        return super(JobLogHandler, self)._open()
 
 
 def parse_list(value, val_func='auto'):

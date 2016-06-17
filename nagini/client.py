@@ -3,6 +3,10 @@ from os.path import join, basename
 import requests
 
 
+class AzkabanClientError(Exception):
+    pass
+
+
 class AzkabanClient(object):
     session_id = None
 
@@ -18,6 +22,10 @@ class AzkabanClient(object):
                 "password": password
             }
         )
+
+        if r.status_code != 200:
+            raise AzkabanClientError('Server return error code: %d\n%s'
+                                     % (r.status_code, r.text))
 
         json_data = r.json()
 
@@ -49,7 +57,7 @@ class AzkabanClient(object):
                                       "description": description})
 
     def upload_project_zip(self, project, filename):
-        return self._call_api(
+        r = self._call_api(
             method="post", suffix="manager", params={},
             data={"ajax": "upload", "project": project},
             files={
@@ -58,6 +66,10 @@ class AzkabanClient(object):
                          "application/zip")
             }
         )
+        err = 'None' if r is None else r.get('error', 'empty')
+        if not r or r.get('error'):
+            raise AzkabanClientError('Fail to upload project zip: %s' % err)
+        return r
 
     def execute_flow(self, project, flow, properties=None, **kwargs):
         if properties:

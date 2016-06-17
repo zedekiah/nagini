@@ -1,4 +1,5 @@
 # -*- coding: utf8 -*-
+from subprocess import check_output
 import abc
 import os
 
@@ -35,6 +36,10 @@ class LocalTarget(Target):
     def clean_up(self):
         if os.path.exists(self.path):
             os.remove(self.path)
+
+    def record_count(self):
+        lines = check_output(['wc', '-l', self.path])
+        return int(lines.split()[0])
 
 
 class MySqlTarget(Target):

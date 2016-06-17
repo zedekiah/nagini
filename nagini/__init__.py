@@ -12,4 +12,4 @@ except ImportError:
         def emit(self, record):
             pass
 
-logging.getLogger(__name__).addHandler(NullHandler())
+logging.getLogger('nagini').addHandler(NullHandler())

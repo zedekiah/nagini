@@ -16,7 +16,7 @@ logging:
       class:              nagini.utility.JobLogHandler
       level:              DEBUG
       formatter:          generic
-      filename:           "{props[working.dir]}/nagini_logs/{env[JOB_NAME]}.log"
+      filename:           "{props[working.dir]}/nagini_logs/{props[azkaban.job.id]}.log"
       encoding:           utf8
   loggers:
     nagini.job:
