@@ -55,4 +55,3 @@ class Properties(dict):
 
 
 props = Properties()
-props.load()

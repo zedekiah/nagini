@@ -1,3 +1,9 @@
+nagini (0.14) unstable; urgency=low
+
+  * Now load porperties in launcher 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 25 May 2016 14:05:58 +0300
+
 nagini (0.13-3) unstable; urgency=low
 
   * Supress warning messages to stdout of nagini.properties 

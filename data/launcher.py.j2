@@ -4,6 +4,7 @@ if __name__ == "__main__":
 
     print 'Loading properties...'
     from nagini.properties import props
+    props.load()
     print 'Complete loading. Keys: %d' % len(props.keys())
 
     print "{{ module_name }}Launcher.py: module", module
