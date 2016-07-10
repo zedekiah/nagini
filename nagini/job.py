@@ -91,7 +91,8 @@ class BaseJob(object):
 
     def on_failure(self):
         for target in flatten(self.output()):
-            target.clean_up()
+            if target.exists():
+                target.clean_up()
 
     def on_success(self):
         pass

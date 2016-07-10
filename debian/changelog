@@ -1,3 +1,9 @@
+nagini (0.18) unstable; urgency=low
+
+  * Delete only existing targets by default in on_failure() 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Sun, 10 Jul 2016 21:27:21 +0300
+
 nagini (0.17) unstable; urgency=low
 
   * Bug fixing and small changes 
