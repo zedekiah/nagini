@@ -26,18 +26,13 @@ class BaseJob(object):
     retries = 0
     retry_backoff = 0
     config = None
-    _fields = None
 
     def __init__(self):
-        fields = {}
         predicate = lambda f: isinstance(f, BaseField)
         for name, field in getmembers(self.__class__, predicate):
             if field.name is None:
                 field.name = name
-            fields[name] = field
-            if field.name not in props and field.default:
-                props[field.name] = field.default
-        self._fields = fields
+            field.set_defaul_if_not_exists()
 
         self.env = environ.copy()
         if exists('/etc/nagini.yml'):
@@ -65,7 +60,7 @@ class BaseJob(object):
     def input(self):
         """Return outputs of requires
 
-        :rtype: Target|list[Target]
+        :rtype: Target|list[Target]|dict[str,Target]
         """
         requires = self.requires()
         if isinstance(requires, (tuple, list, set)):
@@ -80,7 +75,8 @@ class BaseJob(object):
                 item.configure()
             return {k: v.output() for k, v in requires.iteritems()}
         else:
-            raise ValueError("requires() must return BaseJob or list[BaseJob]")
+            raise ValueError('requires() must return BaseJob, list[BaseJob] '
+                             'or dict[str, BaseJob]')
 
     def is_complete(self):
         return False
@@ -148,20 +144,6 @@ class BaseJob(object):
         """Additional method to configure instead __init__
         Don't use __init__ to configure
         """
-
-    def __getattribute__(self, name):
-        fields = object.__getattribute__(self, '_fields')
-        if fields and name in fields:
-            field = fields[name]
-            return field.to_python(props.get(field.name))
-        else:
-            return object.__getattribute__(self, name)
-
-    def __setattr__(self, key, value):
-        if self._fields and key in self._fields:
-            props[self._fields[key].name] = value
-        else:
-            return object.__setattr__(self, key, value)
 
     @property
     def props(self):

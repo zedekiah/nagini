@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 from nagini.utility import parse_list
+from nagini.properties import props
 from datetime import datetime
 import json
 import re
@@ -42,6 +43,20 @@ class BaseField(object):
         :param value: typed value
         """
         return str(value)
+
+    def __set__(self, instance, value):
+        props[self.name] = self.dump(value)
+
+    def __get__(self, instance, owner):
+        return self.to_python(props.get(self.name))
+
+    def set_default_if_not_exists(self):
+        if self.name not in props:
+            if self.default:
+                props[self.name] = self.dump(self.default)
+            elif self.require:
+                raise KeyError('Property "%s" not set '
+                               'in props (required)' % self.name)
 
 
 class StringField(BaseField):

@@ -1,3 +1,9 @@
+nagini (0.19) unstable; urgency=low
+
+  * Change field logic 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 02 Sep 2016 20:12:33 +0300
+
 nagini (0.18) unstable; urgency=low
 
   * Delete only existing targets by default in on_failure() 
