@@ -7,7 +7,6 @@ from nagini.properties import props
 from nagini.utility import flatten
 from nagini.target import Target
 from os.path import join, exists
-from inspect import getmembers
 from os import mkdir, environ
 from datetime import datetime
 from copy import deepcopy
@@ -28,11 +27,11 @@ class BaseJob(object):
     config = None
 
     def __init__(self):
-        predicate = lambda f: isinstance(f, BaseField)
-        for name, field in getmembers(self.__class__, predicate):
-            if field.name is None:
-                field.name = name
-            field.set_defaul_if_not_exists()
+        for name, field in self.__class__.__dict__.iteritems():
+            if isinstance(field, BaseField):
+                if field.name is None:
+                    field.name = name
+                field.set_default_if_not_exists()
 
         self.env = environ.copy()
         if exists('/etc/nagini.yml'):

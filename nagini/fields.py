@@ -143,15 +143,45 @@ class FloatField(BaseField):
 
 
 class ListField(BaseField):
+    """
+    List field. Can contain any type of data.
+      Example:
+        '1,2,3' -> ListField(value_type=IntField()) -> [1, 2, 3]
+
+        '2014-01,2014-02' -> ListField(value_type=DateField('Y%-%m)) ->
+          [date(2014, 1, 1), date(2014, 2, 1)]
+    """
+
     def __init__(self, default=None, require=True, prop_name=None,
-                 val_func='auto'):
+                 val_func='auto', value_type=None):
+        """Constructor for ListField class.
+
+        :param list default: default value if not specify
+        :param bool require:
+        :param str prop_name:
+        :param callable val_func:
+        :param BaseField value_type: field to parse single value in list
+        """
         super(ListField, self).__init__(default, require, prop_name)
         self.val_func = val_func
+        self.value_type = value_type
 
     def _to_python(self, value):
-        return parse_list(value, self.val_func)
+        if self.value_type:
+            return parse_list(value, self.value_type._to_python)
+        else:
+            return parse_list(value, self.val_func)
+
+    def dump(self, value):
+        if self.value_type:
+            return ','.join(self.value_type.dump(i) for i in value)
+        else:
+            return ','.join(str(i) for i in value)
 
 
 class JsonField(BaseField):
     def _to_python(self, value):
         return json.loads(value)
+
+    def dump(self, value):
+        return json.dumps(value)

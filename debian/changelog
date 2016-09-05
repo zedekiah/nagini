@@ -1,3 +1,10 @@
+nagini (0.20) unstable; urgency=low
+
+  * Improve ListField
+  * Small fixes
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Mon, 05 Sep 2016 12:59:07 +0300
+
 nagini (0.19) unstable; urgency=low
 
   * Change field logic 
