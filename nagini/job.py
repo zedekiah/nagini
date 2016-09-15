@@ -22,7 +22,7 @@ class MetaForJobWithFields(ABCMeta):
     def __new__(mcs, name, bases, namespace):
         fields = set([])
         for base in bases:
-            fields.update(base.__dict__.get('_fields', []))
+            fields.update(base.__dict__.get('_nagini_fields', []))
 
         for field_name, field in namespace.iteritems():
             if isinstance(field, BaseField):
