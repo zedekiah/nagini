@@ -1,3 +1,9 @@
+nagini (0.21) unstable; urgency=low
+
+  * Update fields system (fix derived job class problems)
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 15 Sep 2016 14:48:42 +0300
+
 nagini (0.20) unstable; urgency=low
 
   * Improve ListField

@@ -17,21 +17,21 @@ class TestCommand(Command):
 
 
 setup(
-    name="nagini",
-    version="0.19",
-    author="Alexandr Litovchenko",
-    author_email="zedlaa@gmail.com",
-    packages=["nagini", "nagini.builder"],
-    scripts=["nagini-build.py", "nagini-run.py", "nagini-data.py"],
-    requires=["jinja2", "requests", "PyYAML"],
+    name='nagini',
+    version='0.21',
+    author='Alexandr Litovchenko',
+    author_email='zedlaa@gmail.com',
+    packages=['nagini', 'nagini.builder'],
+    scripts=['nagini-build.py', 'nagini-run.py', 'nagini-data.py'],
+    requires=['jinja2', 'requests', 'PyYAML'],
     data_files=[
-        ("/usr/share/nagini/", ["data/job-template.job.j2"]),
-        ("/usr/share/nagini/", ["data/launcher.py.j2"]),
-        ("/etc/", ["nagini.yml"])
+        ('/usr/share/nagini/', ['data/job-template.job.j2']),
+        ('/usr/share/nagini/', ['data/launcher.py.j2']),
+        ('/etc/', ['nagini.yml'])
     ],
-    url="unknown",
-    description="",
+    url='unknown',
+    description='',
     cmdclass={
-        "test": TestCommand
+        'test': TestCommand
     }
 )

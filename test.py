@@ -134,6 +134,19 @@ class FieldsTest(unittest.TestCase):
 
     def deep_inheritance_field_check(self):
         class Base(BaseJob):
+            string_field = StringField()
+
+        class Derived(Base):
+            pass
+
+        with make_test_file() as filename:
+            props.load(filename)
+            job = Derived()
+
+            self.assertEqual(job.string_field, 'some text')
+
+    def deep_inheritance_default_field_check(self):
+        class Base(BaseJob):
             test_field = StringField(default='default_value')
 
         class Derived(Base):

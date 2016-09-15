@@ -18,7 +18,24 @@ import json
 import yaml
 
 
+class MetaForJobWithFields(ABCMeta):
+    def __new__(mcs, name, bases, namespace):
+        fields = set([])
+        for base in bases:
+            fields.update(base.__dict__.get('_fields', []))
+
+        for field_name, field in namespace.iteritems():
+            if isinstance(field, BaseField):
+                if field.name is None:
+                    field.name = field_name
+                fields.add(field)
+        namespace['_nagini_fields'] = fields
+        return super(MetaForJobWithFields, mcs).__new__(mcs, name,
+                                                        bases, namespace)
+
+
 class BaseJob(object):
+    __metaclass__ = MetaForJobWithFields
     _check_output_at_start = False
     _check_output_at_end = False
     name = None
@@ -27,11 +44,8 @@ class BaseJob(object):
     config = None
 
     def __init__(self):
-        for name, field in self.__class__.__dict__.iteritems():
-            if isinstance(field, BaseField):
-                if field.name is None:
-                    field.name = name
-                field.set_default_if_not_exists()
+        for field in getattr(self, '_nagini_fields', []):
+            field.set_default_if_not_exists()
 
         self.env = environ.copy()
         if exists('/etc/nagini.yml'):
