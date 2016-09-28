@@ -1,3 +1,15 @@
+nagini (0.22-1) unstable; urgency=low
+
+  * Fix using env 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 15 Sep 2016 20:55:53 +0300
+
+nagini (0.22) unstable; urgency=low
+
+  * Fix building project with new field system 
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 15 Sep 2016 20:49:37 +0300
+
 nagini (0.21-1) unstable; urgency=low
 
   * Small fix for fields system
