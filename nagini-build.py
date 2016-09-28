@@ -13,6 +13,7 @@ import inspect
 import shutil
 import yaml
 import sys
+import os
 
 
 def debug(*args):
@@ -132,6 +133,7 @@ def main():
     client.login(config["server"]["username"], config["server"]["password"])
 
     projects = []
+    os.environ['NAGINI_BUILDING'] = 'true'
     print "Inspecting projects:"
     for item in listdir(args.root):
         if isdir(join(args.root, item)):

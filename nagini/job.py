@@ -44,8 +44,9 @@ class BaseJob(object):
     config = None
 
     def __init__(self):
-        for field in getattr(self, '_nagini_fields', []):
-            field.set_default_if_not_exists()
+        if not environ.get('NAGINI_BUILDING'):
+            for field in getattr(self, '_nagini_fields', []):
+                field.set_default_if_not_exists()
 
         self.env = environ.copy()
         if exists('/etc/nagini.yml'):
