@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 from nagini.client import AzkabanClient
 from nagini.properties import props
+from nagini.utility import flatten
 from os.path import join
 import yaml
 import abc
@@ -42,10 +43,21 @@ class BaseFlow(object):
                                    properties,
                                    concurrentOption=concurrent_option)
 
+    def get_start_jobs(self):
+        return list(BaseFlow._get_start_jobs(self))
+
+    @staticmethod
+    def _get_start_jobs(root):
+        requires = flatten(root.requires())
+        if requires:
+            for parent in requires:
+                for job in BaseFlow._get_start_jobs(parent):
+                    yield job
+        else:
+            yield root
+
 
 class EmbeddedFlow(BaseFlow):
-    __metaclass__ = abc.ABCMeta
-
     def requires(self):
         return []
 
