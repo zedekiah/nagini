@@ -1,3 +1,11 @@
+nagini (0.24) unstable; urgency=low
+
+  * Fix problem when default is None and not require
+  * Add clear option in Properties.load
+  * Add new tests
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 28 Oct 2016 17:09:51 +0300
+
 nagini (0.23) unstable; urgency=low
 
   * Add get_start_jobs for BaseFlow 

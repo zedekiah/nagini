@@ -21,7 +21,7 @@ class BaseField(object):
 
         :param str value:
         """
-        if value is None:
+        if value is None:  # value not in props
             if self.require and self.default is None:
                 raise KeyError('Property "%s" not set '
                                'in props (required)' % self.name)
@@ -52,7 +52,7 @@ class BaseField(object):
 
     def set_default_if_not_exists(self):
         if self.name not in props:
-            if self.default:
+            if self.default is not None:
                 props[self.name] = self.dump(self.default)
             elif self.require:
                 raise KeyError('Property "%s" not set '

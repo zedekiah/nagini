@@ -132,7 +132,7 @@ class FieldsTest(unittest.TestCase):
             job.test_field = False
             self.assertEqual(props['boolean_field'], 'False')
 
-    def deep_inheritance_field_check(self):
+    def test_deep_inheritance_field_check(self):
         class Base(BaseJob):
             string_field = StringField()
 
@@ -145,7 +145,7 @@ class FieldsTest(unittest.TestCase):
 
             self.assertEqual(job.string_field, 'some text')
 
-    def deep_inheritance_default_field_check(self):
+    def test_deep_inheritance_default_field_check(self):
         class Base(BaseJob):
             test_field = StringField(default='default_value')
 
@@ -157,3 +157,27 @@ class FieldsTest(unittest.TestCase):
             job = Derived()
             self.assertEqual(props['test_field'], 'default_value')
             self.assertEqual(job.test_field, 'default_value')
+
+    def test_missing_value_exception(self):
+        class Job(BaseJob):
+            missing_field = StringField()
+
+        with make_test_file() as filename:
+            props.load(filename)
+
+            self.assertRaises(KeyError, Job)
+
+    def test_clearing_props_on_load(self):
+        with make_test_file() as filename:
+            props.load(filename)
+            props['key_that_must_disappear'] = 'value'
+            props.load(filename)
+            self.assertNotIn('key_that_must_disappear', props)
+
+            props['key_that_must_disappear'] = 'value'
+            props.load(filename, clear=False)
+            self.assertIn('key_that_must_disappear', props)
+
+
+if __name__ == '__main__':
+    unittest.main()

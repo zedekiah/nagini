@@ -11,7 +11,7 @@ logger = logging.getLogger('nagini.properties')
 class Properties(dict):
     FLOAT_RE = r'^\d+\.\d*$'
 
-    def load(self, filename=None):
+    def load(self, filename=None, clear=True):
         if filename is None:
             if 'JOB_PROP_FILE' in os.environ:
                 filename = os.environ['JOB_PROP_FILE']
@@ -20,6 +20,8 @@ class Properties(dict):
                 return
 
         with open(filename) as fd:
+            if clear:
+                self.clear()
             for line in fd:
                 line = line.strip()
                 if not line.startswith('#'):
