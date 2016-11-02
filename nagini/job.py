@@ -115,8 +115,9 @@ class BaseJob(object):
         except OSError:
             pass
         self.configure()
-        self.logger.info("Init props:\n" +
-                         json.dumps(props, ensure_ascii=False, indent=4))
+        self.logger.info('Init props:\n' +
+                         json.dumps(props, ensure_ascii=False,
+                                    indent=4, sort_keys=True))
         output = flatten(self.output())
         if not output:
             self._check_output_at_start = False
