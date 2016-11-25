@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 # -*- coding: utf8 -*-
+from os.path import join, isdir, basename, exists, abspath
 from nagini.loader import load_module, remove_ext
-from os.path import join, isdir, basename, exists
 from nagini.builder.wrappers import FlowWrapper
 from os import getcwd, listdir, walk, remove
 from nagini import BaseFlow, EmbeddedFlow
@@ -27,13 +27,38 @@ def find_py(path):
                 yield item
 
 
-def clean_guard(func):
-    def wrapper(self, *args, **kwargs):
-        if self._clean == True:
-            raise ValueError("Project is clean")
+class PlainProjectPackage(object):
+    base_dir = None
+    _clean = False
+    zip_path = None
+
+    def __init__(self, project_path):
+        self.project_path = project_path
+        self.name = basename(abspath(project_path))
+        self.tmp_dir = tempfile.mkdtemp(prefix=self.name + '-')
+
+    def build(self, zip_filename=None, config=None):
+        self.base_dir = self.tmp_dir
+        shutil.copytree(self.project_path, join(self.tmp_dir, self.name))
+
+        if zip_filename:
+            self.zip_path = zip_filename
         else:
-            func(self, *args, **kwargs)
-    return wrapper
+            _, self.zip_path = tempfile.mkstemp('.zip', self.name + '-')
+
+        shutil.make_archive(
+            remove_ext(self.zip_path),
+            'zip',
+            join(self.base_dir)
+        )
+
+    def clear(self):
+        if not self._clean:
+            if exists(self.tmp_dir):
+                shutil.rmtree(self.tmp_dir)
+            if self.zip_path and exists(self.zip_path):
+                remove(self.zip_path)
+            self._clean = True
 
 
 class ProjectPackage(object):
@@ -43,7 +68,7 @@ class ProjectPackage(object):
 
     def __init__(self, project_path):
         self.project_path = project_path
-        self.name = basename(project_path)
+        self.name = basename(abspath(project_path))
         self.tmp_dir = tempfile.mkdtemp(prefix=self.name + "-")
         self.jobs = {}
 
@@ -52,8 +77,6 @@ class ProjectPackage(object):
         self.base_dir = self.tmp_dir
         shutil.copytree(self.project_path, join(self.tmp_dir, self.name))
         for module_path, item in self._find_flows():
-            # builder = FlowBuilder(self, item, module_path)
-            # builder.build()
             wrapper = FlowWrapper(item, self)
             wrapper.build()
 
@@ -124,30 +147,46 @@ def main():
     parser.add_argument("-p", "--plain", dest="plain", default=False,
                         action="store_true",
                         help="Don't build nagini project files")
+    parser.add_argument('-a', '--all', dest='all', default=False,
+                        action='store_true',
+                        help='If set "root" must be directory of project '
+                             'directories')
+    parser.add_argument('-H', '--host', dest='host', required=True,
+                        help='Host to upload projects')
+    parser.add_argument('-u', '--user', dest='user', required=True,
+                        help='Username to authenticate on server')
+    parser.add_argument('-P', '--password', dest='password', required=True,
+                        help='Password to authenticate on server')
     args = parser.parse_args()
 
-    with open(join(args.root, "config.yml")) as fd:
-        config = yaml.load(fd)
+    config = {
+        'server': {
+            'host': args.host,
+            'username': args.user,
+            'password': args.password
+        }
+    }
 
     client = AzkabanClient(config["server"]["host"])
     client.login(config["server"]["username"], config["server"]["password"])
 
     projects = []
     os.environ['NAGINI_BUILDING'] = 'true'
-    print "Inspecting projects:"
-    for item in listdir(args.root):
-        if isdir(join(args.root, item)):
-            with tempfile.NamedTemporaryFile(suffix=".zip") as temp:
-                if args.plain:
-                    shutil.make_archive(
-                        temp.name.rsplit(".", 1)[0],
-                        "zip",
-                        join(args.root, item)
-                    )
-                else:
-                    project = ProjectPackage(join(args.root, item))
-                    project.build(config=config)
-                    projects.append(project)
+    print 'Inspecting projects:'
+
+    if args.all:
+        items = map(lambda p: join(args.root, p), listdir(args.root))
+    else:
+        items = [args.root]
+
+    for root_path in items:
+        if isdir(root_path):
+            if args.plain:
+                project = PlainProjectPackage(root_path)
+            else:
+                project = ProjectPackage(root_path)
+            project.build(config=config)
+            projects.append(project)
 
     print "Uploading projects:"
     for item in projects:

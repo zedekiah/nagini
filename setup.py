@@ -18,7 +18,7 @@ class TestCommand(Command):
 
 setup(
     name='nagini',
-    version='0.24',
+    version='0.25',
     author='Alexandr Litovchenko',
     author_email='zedlaa@gmail.com',
     packages=['nagini', 'nagini.builder'],

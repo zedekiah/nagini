@@ -1,3 +1,11 @@
+nagini (0.25) unstable; urgency=low
+
+  * Add --all option for nagini-build.py
+  * Change default behaviour of nagini-build.py for building one project
+  * Add cli options for host, user and password
+
+ -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 25 Nov 2016 01:01:55 +0300
+
 nagini (0.24) unstable; urgency=low
 
   * Fix problem when default is None and not require
