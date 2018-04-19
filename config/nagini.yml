@@ -19,6 +19,9 @@ logging:
       filename:           "{props[working.dir]}/nagini_logs/{props[azkaban.job.id]}.log"
       encoding:           utf8
   loggers:
+    nagini.cli:
+      level:              DEBUG
+      handlers:           ["stdout"]
     nagini.job:
       level:              DEBUG
       handlers:           ["stdout", "file"]

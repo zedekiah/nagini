@@ -1,6 +1,11 @@
 # -*- coding: utf8 -*-
-from os.path import join, basename
 import requests
+
+from os.path import join, basename
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class AzkabanClientError(Exception):
@@ -16,7 +21,7 @@ class AzkabanClient(object):
     def login(self, username, password):
         r = requests.post(
             url=self.host,
-            params={
+            data={
                 "action": "login",
                 "username": username,
                 "password": password
@@ -26,8 +31,12 @@ class AzkabanClient(object):
         if r.status_code != 200:
             raise AzkabanClientError('Server return error code: %d\n%s'
                                      % (r.status_code, r.text))
-
-        json_data = r.json()
+        try:
+            json_data = r.json()
+        except Exception as e:
+            logger.exception('Error while parsing json on login.\n'
+                             'Original response: %s', r.text)
+            raise e
 
         if json_data["status"] != "success":
             raise Exception("Authentication fails")
@@ -35,10 +44,9 @@ class AzkabanClient(object):
             self.session_id = json_data["session.id"]
 
     def _call_api(self, method, suffix, params, **kwargs):
-        params.update({"session.id": self.session_id})
-        r = requests.request(
-            method, join(self.host, suffix), params=params, **kwargs
-        )
+        params.update({'session.id': self.session_id})
+        r = requests.request(method, join(self.host, suffix), params=params, **kwargs)
+
         try:
             return r.json()
         except ValueError:
@@ -126,3 +134,6 @@ class AzkabanClient(object):
                 offset += 10000
             result["length"] = len(result["data"])
             return result
+
+    def reload_executors(self):
+        return self._call_api('post', 'executor', {'ajax': 'reloadExecutors'})

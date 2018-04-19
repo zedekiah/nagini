@@ -22,12 +22,12 @@ setup(
     author='Alexandr Litovchenko',
     author_email='zedlaa@gmail.com',
     packages=['nagini', 'nagini.builder'],
-    scripts=['nagini-build.py', 'nagini-run.py', 'nagini-data.py'],
+    scripts=['nagini-build.py', 'nagini-run.py', 'nagini-data.py', 'nagini.py'],
     requires=['jinja2', 'requests', 'PyYAML'],
     data_files=[
         ('/usr/share/nagini/', ['data/job-template.job.j2']),
         ('/usr/share/nagini/', ['data/launcher.py.j2']),
-        ('/etc/', ['nagini.yml'])
+        ('/etc/', ['config/nagini.yml'])
     ],
     url='unknown',
     description='',

@@ -6,6 +6,11 @@ import json
 import re
 
 
+__all__ = ['BaseField', 'StringField', 'RegexpField', 'DateField',
+           'DateTimeField', 'StringMonthField', 'UnicodeField', 'IntField',
+           'BooleanField', 'FloatField', 'ListField', 'JsonField']
+
+
 class BaseField(object):
     name = None
 
@@ -34,6 +39,7 @@ class BaseField(object):
         """Return pythonic typed value
 
         :param str value: string value
+        :rtype: str
         """
         return value
 
@@ -41,6 +47,7 @@ class BaseField(object):
         """Return str typed value for saving
 
         :param value: typed value
+        :rtype: str
         """
         return str(value)
 

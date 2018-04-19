@@ -10,7 +10,6 @@ from os.path import join, exists
 from os import mkdir, environ
 from datetime import datetime
 from copy import deepcopy
-import logging.config
 import subprocess
 import logging
 import shutil
@@ -49,11 +48,6 @@ class BaseJob(object):
                 field.set_default_if_not_exists()
 
         self.env = environ.copy()
-        if exists('/etc/nagini.yml'):
-            with open('/etc/nagini.yml') as fd:
-                config = yaml.load(fd)
-                if 'logging' in config:
-                    logging.config.dictConfig(config['logging'])
         self.logger = logging.getLogger('nagini.job.%s' %
                                         self.__class__.__name__)
         if 'working.dir' in props:
