@@ -38,8 +38,8 @@ class AzkabanClient(object):
                              'Original response: %s', r.text)
             raise e
 
-        if json_data["status"] != "success":
-            raise Exception("Authentication fails")
+        if json_data.get('status') != "success":
+            raise Exception("Authentication fails. Server return: %s" % json_data)
         else:
             self.session_id = json_data["session.id"]
 
@@ -49,8 +49,11 @@ class AzkabanClient(object):
 
         try:
             return r.json()
-        except ValueError:
-            return None
+        except BaseException:
+            params_ = params.copy()
+            params_.pop('session.id')
+            logger.exception('Error while api "%s" call "%s", params: %s', method, suffix, params)
+            raise
 
     def delete_project(self, name):
         return self._call_api(method="get",
