@@ -177,7 +177,3 @@ class FieldsTest(unittest.TestCase):
             props['key_that_must_disappear'] = 'value'
             props.load(filename, clear=False)
             self.assertIn('key_that_must_disappear', props)
-
-
-if __name__ == '__main__':
-    unittest.main()
