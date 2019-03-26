@@ -165,7 +165,7 @@ class ListField(BaseField):
 
         :param list default: default value if not specify
         :param bool require:
-        :param str prop_name:
+        :param basestring prop_name:
         :param callable val_func:
         :param BaseField value_type: field to parse single value in list
         """
