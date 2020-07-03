@@ -1,9 +1,12 @@
 # -*- coding: utf8 -*-
-from collections import defaultdict
+from __future__ import absolute_import, print_function, unicode_literals
+
 import logging
 import os
 import re
+from collections import defaultdict
 
+from six import string_types, iteritems
 
 FLOAT_RE = r'^\d+\.\d*$'
 
@@ -20,15 +23,17 @@ def flatten(obj):
     ['foo']
     >>> flatten(42)
     [42]
+
+    :rtype list
     """
     if obj is None:
         return []
     flat = []
     if isinstance(obj, dict):
-        for key, result in obj.iteritems():
+        for key, result in iteritems(obj):
             flat += flatten(result)
         return flat
-    if isinstance(obj, basestring):
+    if isinstance(obj, string_types):
         return [obj]
 
     try:
@@ -48,20 +53,21 @@ def require(module_path, fromlist):
     module = __import__(module_path, fromlist=fromlist)
     for item in fromlist:
         global_dict[item] = getattr(module, item)
-    print "print global_dict"
-    for key, value in global_dict.iteritems():
-        print key, "=", value
-    print "print globals()"
-    for key, value in globals().iteritems():
-        print key, "=", value
+
+    print('print global_dict')
+    for key, value in iteritems(global_dict):
+        print(key, '=', value)
+    print('print globals()')
+    for key, value in iteritems(globals()):
+        print(key, '=', value)
 
 
 class JobLogHandler(logging.FileHandler):
     def __init__(self, filename, mode='a', encoding=None):
         from nagini.properties import props
         filename = filename.format(
-            env=defaultdict(lambda: "unknown", os.environ),
-            props=defaultdict(lambda: "unknown", props)
+            env=defaultdict(lambda: 'unknown', os.environ),
+            props=defaultdict(lambda: 'unknown', props)
         )
 
         super(JobLogHandler, self).__init__(filename, mode, encoding, True)

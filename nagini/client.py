@@ -1,9 +1,11 @@
 # -*- coding: utf8 -*-
-import requests
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import join, basename
 import logging
+from os.path import basename, join
 
+import requests
+from six import iteritems
 
 logger = logging.getLogger(__name__)
 
@@ -22,9 +24,9 @@ class AzkabanClient(object):
         r = requests.post(
             url=self.host,
             data={
-                "action": "login",
-                "username": username,
-                "password": password
+                'action': 'login',
+                'username': username,
+                'password': password
             }
         )
 
@@ -38,10 +40,10 @@ class AzkabanClient(object):
                              'Original response: %s', r.text)
             raise e
 
-        if json_data.get('status') != "success":
-            raise Exception("Authentication fails. Server return: %s" % json_data)
+        if json_data.get('status') != 'success':
+            raise Exception('Authentication fails. Server return: %s' % json_data)
         else:
-            self.session_id = json_data["session.id"]
+            self.session_id = json_data['session.id']
 
     def _call_api(self, method, suffix, params, **kwargs):
         params.update({'session.id': self.session_id})
@@ -56,25 +58,25 @@ class AzkabanClient(object):
             raise
 
     def delete_project(self, name):
-        return self._call_api(method="get",
-                              suffix="manager",
-                              params={"delete": "true", "project": name})
+        return self._call_api(method='get',
+                              suffix='manager',
+                              params={'delete': 'true', 'project': name})
 
-    def create_project(self, name, description=""):
-        return self._call_api(method="post",
-                              suffix="manager",
-                              params={"action": "create",
-                                      "name": name,
-                                      "description": description})
+    def create_project(self, name, description=''):
+        return self._call_api(method='post',
+                              suffix='manager',
+                              params={'action': 'create',
+                                      'name': name,
+                                      'description': description})
 
     def upload_project_zip(self, project, filename):
         r = self._call_api(
-            method="post", suffix="manager", params={},
-            data={"ajax": "upload", "project": project},
+            method='post', suffix='manager', params={},
+            data={'ajax': 'upload', 'project': project},
             files={
-                "file": (basename(filename),
-                         open(filename, "rb"),
-                         "application/zip")
+                'file': (basename(filename),
+                         open(filename, 'rb'),
+                         'application/zip')
             }
         )
         err = 'None' if r is None else r.get('error', 'empty')
@@ -84,14 +86,14 @@ class AzkabanClient(object):
 
     def execute_flow(self, project, flow, properties=None, **kwargs):
         if properties:
-            for key, value in properties.iteritems():
-                kwargs["flowOverride[%s]" % key] = value
+            for key, value in iteritems(properties):
+                kwargs['flowOverride[%s]' % key] = value
         kwargs.update({
-            "ajax": "executeFlow",
-            "project": project,
-            "flow": flow
+            'ajax': 'executeFlow',
+            'project': project,
+            'flow': flow
         })
-        return self._call_api(method="get", suffix="executor", params=kwargs)
+        return self._call_api(method='get', suffix='executor', params=kwargs)
 
     def get_running_executions(self, project, flow):
         """Return list of ids of current running executions
@@ -101,41 +103,41 @@ class AzkabanClient(object):
         :rtype: list[int]
         """
         params = {
-            "ajax": "getRunning",
-            "project": project,
-            "flow": flow
+            'ajax': 'getRunning',
+            'project': project,
+            'flow': flow
         }
-        result = self._call_api("get", "executor", params)
-        return result.get("execIds", [])
+        result = self._call_api('get', 'executor', params)
+        return result.get('execIds', [])
 
     def get_execution_info(self, exec_id):
-        return self._call_api("get", "executor",
-                              {"ajax": "fetchexecflow", "execid": exec_id})
+        return self._call_api('get', 'executor',
+                              {'ajax': 'fetchexecflow', 'execid': exec_id})
 
     def get_job_logs(self, exec_id, job_name, offset=0, length=None):
         if length:
-            return self._call_api("get", "executor", {
-                "ajax": "fetchExecJobLogs",
-                "execid": exec_id,
-                "jobId": job_name,
-                "offset": offset,
-                "length": length
+            return self._call_api('get', 'executor', {
+                'ajax': 'fetchExecJobLogs',
+                'execid': exec_id,
+                'jobId': job_name,
+                'offset': offset,
+                'length': length
             })
         else:
-            result = {"data": "", "length": None, "offset": offset}
+            result = {'data': '', 'length': None, 'offset': offset}
             while True:
-                ret = self._call_api("get", "executor", {
-                    "ajax": "fetchExecJobLogs",
-                    "execid": exec_id,
-                    "jobId": job_name,
-                    "offset": offset,
-                    "length": 10000
+                ret = self._call_api('get', 'executor', {
+                    'ajax': 'fetchExecJobLogs',
+                    'execid': exec_id,
+                    'jobId': job_name,
+                    'offset': offset,
+                    'length': 10000
                 })
-                result["data"] += ret["data"]
-                if ret["length"] < 10000:
+                result['data'] += ret['data']
+                if ret['length'] < 10000:
                     break
                 offset += 10000
-            result["length"] = len(result["data"])
+            result['length'] = len(result['data'])
             return result
 
     def reload_executors(self):

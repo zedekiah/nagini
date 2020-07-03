@@ -1,20 +1,25 @@
 # -*- coding: utf8 -*-
-from dateutil.rrule import rrule, MO, MONTHLY, WEEKLY, DAILY
-from dateutil.relativedelta import relativedelta
-from abc import ABCMeta, abstractmethod
-from nagini.fields import BaseField
-from nagini.properties import props
-from nagini.utility import flatten
-from nagini.target import Target
-from os.path import join, exists
-from os import mkdir, environ
-from datetime import datetime
-from copy import deepcopy
-import subprocess
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import json
 import logging
 import shutil
-import json
+import sys
+from abc import ABCMeta, abstractmethod
+from copy import deepcopy
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from dateutil.rrule import DAILY, MO, MONTHLY, rrule, WEEKLY
+from os import environ, mkdir
+from os.path import exists, join
+
 import yaml
+from six import iteritems, itervalues, reraise
+
+from nagini.fields import BaseField
+from nagini.properties import props
+from nagini.target import Target
+from nagini.utility import flatten
 
 
 class MetaForJobWithFields(ABCMeta):
@@ -23,7 +28,7 @@ class MetaForJobWithFields(ABCMeta):
         for base in bases:
             fields.update(base.__dict__.get('_nagini_fields', []))
 
-        for field_name, field in namespace.iteritems():
+        for field_name, field in iteritems(namespace):
             if isinstance(field, BaseField):
                 if field.name is None:
                     field.name = field_name
@@ -33,10 +38,20 @@ class MetaForJobWithFields(ABCMeta):
                                                         bases, namespace)
 
 
+class JsonPropsFormatter(object):
+    def __init__(self, props):
+        self.props = props
+
+    def render(self):
+        return 'Init props:\n%s' % json.dumps(self.props, ensure_ascii=False, indent=4, sort_keys=True)
+
+
 class BaseJob(object):
     __metaclass__ = MetaForJobWithFields
     _check_output_at_start = False
     _check_output_at_end = False
+    props_formatter_class = JsonPropsFormatter
+
     name = None
     retries = 0
     retry_backoff = 0
@@ -56,6 +71,9 @@ class BaseJob(object):
 
             with open(join(props['working.dir'], 'config.yml')) as fd:
                 self.config = yaml.load(fd)
+
+    def get_props_formatter(self):
+        return self.props_formatter_class(self.props)
 
     def requires(self):
         """Override me!"""
@@ -79,9 +97,9 @@ class BaseJob(object):
             requires.configure()
             return requires.output()
         elif isinstance(requires, dict):
-            for item in requires.itervalues():
+            for item in itervalues(requires):
                 item.configure()
-            return {k: v.output() for k, v in requires.iteritems()}
+            return {k: v.output() for k, v in iteritems(requires)}
         else:
             raise ValueError('requires() must return BaseJob, list[BaseJob] '
                              'or dict[str, BaseJob]')
@@ -91,7 +109,7 @@ class BaseJob(object):
 
     def run(self):
         """Override me!"""
-        self.logger.error("Nagini: this job is empty. Override run() method")
+        self.logger.error('Nagini: this job is empty. Override run() method')
 
     def on_failure(self):
         for target in flatten(self.output()):
@@ -102,39 +120,35 @@ class BaseJob(object):
         pass
 
     def execute(self):
-        props["working.dir.nagini"] = join(props["working.dir"], "nagini_data")
+        props['working.dir.nagini'] = join(props['working.dir'], 'nagini_data')
         # if not exists(self.props["working.dir.nagini"]):
         try:
-            mkdir(props["working.dir.nagini"])
+            mkdir(props['working.dir.nagini'])
         except OSError:
             pass
         self.configure()
-        self.logger.info('Init props:\n' +
-                         json.dumps(props, ensure_ascii=False,
-                                    indent=4, sort_keys=True))
+        self.logger.info(self.get_props_formatter().render())
         output = flatten(self.output())
         if not output:
             self._check_output_at_start = False
         try:
-            self.logger.info("Nagini: start job")
+            self.logger.info('Nagini: start job')
             if self._check_output_at_start and all(t.exists() for t in output):
-                self.logger.warning("All targets exists at start "
-                                    "of the job, skip job...")
+                self.logger.warning('All targets exists at start of the job, skip job...')
             else:
                 self.logger.info('Nagini: about to execute "run" method')
                 self.run()
-            for key, value in self.env.iteritems():
-                props["env.%s" % key] = value
+            for key, value in iteritems(self.env):
+                props['env.%s' % key] = value
 
             if self._check_output_at_end and not all(t.exists() for t in output):
-                raise Exception("Not all output target exists "
-                                "at end of the job")
+                raise Exception('Not all output target exists at end of the job')
             else:
                 self.on_success()
-        except BaseException as e:
-            self.logger.error("NaginiJob: catch exception. Try on_failure()")
+        except:
+            self.logger.error('NaginiJob: catch exception. Try on_failure()')
             self.on_failure()
-            raise
+            reraise(*sys.exc_info())
 
     def rupdate_props(self, other):
         """Like self.props.update but not override existing props"""
@@ -142,12 +156,12 @@ class BaseJob(object):
 
     @staticmethod
     def data_path(path=''):
-        return join(props["working.dir.nagini"], path)
+        return join(props['working.dir.nagini'], path)
 
     @staticmethod
     def clear_data_dir():
-        if exists(props["working.dir.nagini"]):
-            shutil.rmtree(props["working.dir.nagini"])
+        if exists(props['working.dir.nagini']):
+            shutil.rmtree(props['working.dir.nagini'])
 
     def configure(self):
         """Additional method to configure instead __init__
@@ -157,117 +171,6 @@ class BaseJob(object):
     @property
     def props(self):
         return props
-
-
-class UploadToMySqlJob(BaseJob):
-    """
-    Input must be LocalTarget
-    Output must be MySqlTarget
-    """
-    host = None
-    port = None
-    user = None
-    password = None
-    config_file = None
-
-    db = None
-    table = None
-    fields = None
-    clear = False
-
-    def run(self):
-        sql = """
-        SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-        SET autocommit=0;
-        START TRANSACTION;
-        {delete}
-        LOAD DATA LOCAL INFILE '{filename}'
-        IGNORE INTO TABLE {table} {fields};
-        SHOW WARNINGS;
-        COMMIT;""".format(
-            filename=self.input().path,
-            table=self.table,
-            fields=("(`%s`)" % "`,`".join(self.fields)) if self.fields else "",
-            delete="DELETE FROM `%s`;" % self.table if self.clear else ""
-        )
-
-        args = ["mysql"]
-        if self.config_file:
-            args.append("--defaults-extra-file=%s" % self.config_file)
-        else:
-            args += ["--host=%s" % self.host, "--port=%s" % str(self.port),
-                     "--user=%s" % self.user, "--password=%s" % self.password]
-
-        if self.db:
-            args.append("--database=%s" % self.db)
-
-        args += ["--default-character-set=utf8", "--local-infile=1",
-                 "--silent", "-q", "-e", sql]
-
-        subprocess.check_call(args)
-
-
-class MySqlQueryJob(BaseJob):
-    """You can set sql in subclass or override run method and use
-    `query` method
-    """
-    host = None
-    port = None
-    user = None
-    password = None
-    config_file = None
-
-    db = None
-    table = None
-    fields = None
-    sql = None
-    sort_by = None  # works only with fields
-
-    def run(self):
-        sql = "SELECT {fields} FROM {table}".format(
-            fields=("`%s`" % "`, `".join(self.fields)) if self.fields else "*",
-            table=self.table
-        )
-
-        self.query(self.sql or sql)
-
-    def query(self, sql):
-        args = ["mysql"]
-        if self.config_file:
-            args.append("--defaults-extra-file=%s" % self.config_file)
-        else:
-            args += ["--host=%s" % self.host, "--port=%s" % str(self.port),
-                     "--user=%s" % self.user, "--password=%s" % self.password]
-
-        if self.db:
-            args.append("--database=%s" % self.db)
-
-        args += ["--quick", "--default-character-set=utf8", "--silent",
-                 "--column-names", "--skip-pager", "-e", sql]
-
-        if self.output():
-            with open(self.output().path, "wb") as fd:
-                if self.sort_by is not None:
-                    if isinstance(self.sort_by, int):
-                        field_n = self.sort_by
-                    else:
-                        field_n = self.fields.index(self.sort_by) + 1
-                    qp = subprocess.Popen(args, stdout=subprocess.PIPE)
-                    sort_cmd = ["sort", "-k{0},{0}".format(field_n),
-                                "-t", "\t"]
-                    sort = subprocess.Popen(sort_cmd,
-                                            stdin=qp.stdout, stdout=fd,
-                                            env={"LC_ALL": "C", "LANG": "C"})
-                    if qp.wait():
-                        raise subprocess.CalledProcessError(qp.returncode,
-                                                            args)
-                    if sort.wait():
-                        raise subprocess.CalledProcessError(sort.returncode,
-                                                            sort_cmd)
-                else:
-                    subprocess.check_call(args, stdout=fd.fileno())
-        else:
-            subprocess.check_call(args)
 
 
 class ClearAllJob(BaseJob):
@@ -350,9 +253,9 @@ class IntervalDataChecker(BaseJob):
                 e = s + relativedelta(days=1)
 
             if self.work_flow and not self.dst_data_exists(s, e):
-                print 'Prepared data not exists for', s, e
+                print('Prepared data not exists for', s, e)
                 if self.src_data_exists(s, e):
-                    print "Start prepare data. Start: %s, End: %s" % (s, e)
+                    print('Start prepare data. Start: %s, End: %s' % (s, e))
                     self.start_work_flow(s, e)
 
     @abstractmethod
@@ -369,12 +272,12 @@ class IntervalDataChecker(BaseJob):
         params = deepcopy(self.work_flow_params) or {}
 
         if self.type == MONTHLY:
-            params["month"] = s.strftime("%Y-%m")
+            params['month'] = s.strftime('%Y-%m')
         elif self.type == WEEKLY:
-            params.update({"week": s.strftime("%Y-%m-%d"),
-                           "start": s.strftime("%Y-%m-%d"),
-                           "end": e.strftime("%Y-%m-%d")})
+            params.update({'week': s.strftime('%Y-%m-%d'),
+                           'start': s.strftime('%Y-%m-%d'),
+                           'end': e.strftime('%Y-%m-%d')})
         elif self.type == DAILY:
-            params["day"] = s.strftime("%Y-%m-%d")
+            params['day'] = s.strftime('%Y-%m-%d')
 
         self.work_flow.start(params)

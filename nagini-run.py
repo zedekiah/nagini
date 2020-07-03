@@ -1,12 +1,18 @@
 #!/usr/bin/python2
 # -*- coding: utf8 -*-
 # Script that run remote flows
-from nagini.utility import flatten
+from __future__ import absolute_import, print_function, unicode_literals
+
+import json
+import os
+import sys
+from codecs import open
 from optparse import OptionParser
 from tempfile import mkstemp
-import json
-import sys
-import os
+
+from six import iteritems
+
+from nagini.utility import flatten
 
 
 def fill_queue(job, queue=None):
@@ -26,16 +32,16 @@ def output_to_input_props(path):
     with open(path) as fd:
         content = json.load(fd)
 
-    with open(path, "w") as fd:
-        fd.write("")
-        for name, value in content.iteritems():
-            fd.write("{0}={1}\n".format(name, value))
+    with open(path, 'w') as fd:
+        fd.write('')
+        for name, value in iteritems(content):
+            fd.write('{0}={1}\n'.format(name, value))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("--pythonpath", type="string",
-                      default=None, dest="pythonpath")
+    parser.add_option('--pythonpath', type='string',
+                      default=None, dest='pythonpath')
 
     options, args = parser.parse_args()
 
@@ -48,18 +54,18 @@ if __name__ == "__main__":
     root_job = getattr(module, root_job_name)()
 
     jobs_queue = fill_queue(root_job)
-    print "Job queue:", jobs_queue
+    print('Job queue:', jobs_queue)
 
     # with TemporaryFile(mode="r")
     _, input_prop_file = mkstemp(prefix="nagini-run-props-")
     for job in jobs_queue:
-        _, output_prop_file = mkstemp(prefix="nagini-run-props-")
-        os.environ["JOB_PROP_FILE"] = input_prop_file
-        os.environ["JOB_OUTPUT_PROP_FILE"] = output_prop_file
-        print "JOB_PROP_FILE", os.environ["JOB_PROP_FILE"]
-        print "JOB_OUTPUT_PROP_FILE", os.environ["JOB_OUTPUT_PROP_FILE"]
-        print "Launcher: job", job
-        print "Launcher: about to job.execute()"
+        _, output_prop_file = mkstemp(prefix='nagini-run-props-')
+        os.environ['JOB_PROP_FILE'] = input_prop_file
+        os.environ['JOB_OUTPUT_PROP_FILE'] = output_prop_file
+        print('JOB_PROP_FILE', os.environ['JOB_PROP_FILE'])
+        print('JOB_OUTPUT_PROP_FILE', os.environ['JOB_OUTPUT_PROP_FILE'])
+        print('Launcher: job', job)
+        print('Launcher: about to job.execute()')
 
         job.execute()
 

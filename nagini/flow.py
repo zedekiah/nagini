@@ -1,10 +1,14 @@
 # -*- coding: utf8 -*-
+from __future__ import absolute_import, division, print_function, unicode_literals
+
+import abc
+from os.path import join
+
+import yaml
+
 from nagini.client import AzkabanClient
 from nagini.properties import props
 from nagini.utility import flatten
-from os.path import join
-import yaml
-import abc
 
 
 class BaseFlow(object):
@@ -24,7 +28,7 @@ class BaseFlow(object):
         self.run()
 
     @classmethod
-    def start(cls, properties=None, concurrent_option="skip"):
+    def start(cls, properties=None, concurrent_option='skip'):
         """Start flow from another flow
 
         :param dict[str,str] properties:
@@ -33,13 +37,13 @@ class BaseFlow(object):
         :rtype:
         """
         # LOAD CONFIG
-        with open(join(props["working.dir"], "config.yml")) as fd:
+        with open(join(props['working.dir'], 'config.yml')) as fd:
             config = yaml.load(fd)
 
-        client = AzkabanClient(config["server"]["host"])
-        client.login(config["server"]["username"],
-                     config["server"]["password"])
-        return client.execute_flow(config["project"], cls.name or cls.__name__,
+        client = AzkabanClient(config['server']['host'])
+        client.login(config['server']['username'],
+                     config['server']['password'])
+        return client.execute_flow(config['project'], cls.name or cls.__name__,
                                    properties,
                                    concurrentOption=concurrent_option)
 

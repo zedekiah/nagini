@@ -1,6 +1,8 @@
 # -*- coding: utf8 -*-
-from os.path import basename, join
+from __future__ import absolute_import, print_function, unicode_literals
+
 from os import walk
+from os.path import basename, join
 
 
 def remove_ext(string, ext=None):

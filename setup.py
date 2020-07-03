@@ -22,7 +22,9 @@ setup(
     version='0.25',
     author='Alexandr Litovchenko',
     author_email='zedlaa@gmail.com',
-    packages=['nagini', 'nagini.builder'],
+    packages=['nagini',
+              'nagini.builder',
+              'nagini.contrib'],
     scripts=['nagini-build.py', 'nagini-run.py', 'nagini-data.py'],
     requires=['jinja2', 'requests', 'PyYAML'],
     data_files=[

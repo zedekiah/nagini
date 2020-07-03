@@ -1,7 +1,9 @@
 # -*- coding: utf8 -*-
-from subprocess import check_output
+from __future__ import absolute_import, print_function, unicode_literals
+
 import abc
 import os
+from subprocess import check_output
 
 
 class Target(object):

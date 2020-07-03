@@ -1,15 +1,18 @@
 # -*- coding: utf8 -*-
-from nagini.job import BaseJob, UploadToMySqlJob, MySqlQueryJob
-from nagini.flow import BaseFlow, EmbeddedFlow
-from nagini.target import Target, LocalTarget
-from nagini.yaml_config import YamlConfig
-from nagini.fields import *
+from __future__ import absolute_import, division, print_function, unicode_literals
 
-from os.path import exists
-import logging.config
 import logging
+import logging.config
+from os.path import exists
+
 import yaml
 
+from nagini.contrib.mysql import MySqlQueryJob, UploadToMySqlJob
+from nagini.fields import *
+from nagini.flow import BaseFlow, EmbeddedFlow
+from nagini.job import BaseJob
+from nagini.target import LocalTarget, Target
+from nagini.yaml_config import YamlConfig
 
 __all__ = ['BaseJob', 'BaseFlow', 'EmbeddedFlow', 'Target', 'LocalTarget',
            'BaseField', 'StringField', 'RegexpField', 'DateField',

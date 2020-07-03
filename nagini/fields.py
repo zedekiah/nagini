@@ -1,10 +1,12 @@
 # -*- coding: utf8 -*-
-from nagini.utility import parse_list
-from nagini.properties import props
-from datetime import datetime
+from __future__ import absolute_import, division, print_function, unicode_literals
+
 import json
 import re
+from datetime import datetime
 
+from nagini.properties import props
+from nagini.utility import parse_list
 
 __all__ = ['BaseField', 'StringField', 'RegexpField', 'DateField',
            'DateTimeField', 'StringMonthField', 'UnicodeField', 'IntField',

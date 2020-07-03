@@ -1,9 +1,12 @@
 # -*- coding: utf8 -*-
-from nagini.utility import parse_list
-import logging
+from __future__ import absolute_import, print_function, unicode_literals
+
 import json
+import logging
 import os
 
+from nagini.utility import parse_list
+from six import iteritems
 
 logger = logging.getLogger('nagini.properties')
 
@@ -51,7 +54,7 @@ class Properties(dict):
 
     def update_not_override(self, other):
         """Like `update` but not override existing keys"""
-        for k, v in other.iteritems():
+        for k, v in iteritems(other):
             if k not in self:
                 self[k] = v
 
