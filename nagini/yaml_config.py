@@ -12,7 +12,7 @@ class YamlConfig(object):
         self.filename = expanduser(filename)
         if exists(self.filename):
             with open(self.filename) as fd:
-                self._data = yaml.load(fd)
+                self._data = yaml.safe_load(fd)
         else:
             self._data = {}
 

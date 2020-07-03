@@ -28,7 +28,7 @@ except ImportError:
 
 if exists('/etc/nagini.yml'):
     with open('/etc/nagini.yml') as fd:
-        config = yaml.load(fd)
+        config = yaml.safe_load(fd)
         if 'logging' in config:
             logging.config.dictConfig(config['logging'])
 
