@@ -146,7 +146,7 @@ class BaseJob(object):
             else:
                 self.on_success()
         except:
-            self.logger.error('NaginiJob: catch exception. Try on_failure()')
+            self.logger.exception('NaginiJob: catch exception. Try on_failure()')
             self.on_failure()
             reraise(*sys.exc_info())
 
