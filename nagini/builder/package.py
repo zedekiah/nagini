@@ -2,7 +2,7 @@
 from os.path import join, basename, exists, abspath
 from nagini.loader import load_module, remove_ext, find_py
 from nagini.builder.wrappers import FlowWrapper
-from nagini import BaseFlow, EmbeddedFlow
+from nagini.flow import BaseFlow, EmbeddedFlow
 from copy import deepcopy
 from os import remove
 import tempfile

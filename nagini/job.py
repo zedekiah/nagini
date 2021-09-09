@@ -92,17 +92,22 @@ class BaseJob(object):
         if isinstance(requires, (tuple, list, set)):
             for job in requires:
                 job.configure()
-            return [r.output() for r in requires]
+            outputs = [r.output() for r in requires]
         elif isinstance(requires, BaseJob):
             requires.configure()
-            return requires.output()
+            outputs = requires.output()
         elif isinstance(requires, dict):
             for item in itervalues(requires):
                 item.configure()
-            return {k: v.output() for k, v in iteritems(requires)}
+            outputs = {k: v.output() for k, v in iteritems(requires)}
         else:
             raise ValueError('requires() must return BaseJob, list[BaseJob] '
                              'or dict[str, BaseJob]')
+
+        # Set output_flag
+        for output in flatten(outputs):
+            output.output_flag = True
+        return outputs
 
     def is_complete(self):
         return False

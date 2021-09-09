@@ -19,7 +19,7 @@ class TestCommand(Command):
 
 setup(
     name='nagini',
-    version='0.25',
+    version='0.27',
     author='Alexandr Litovchenko',
     author_email='zedlaa@gmail.com',
     packages=['nagini',

@@ -8,6 +8,7 @@ from subprocess import check_output
 
 class Target(object):
     __metaclass__ = abc.ABCMeta
+    output_flag = False
 
     @abc.abstractmethod
     def exists(self):
