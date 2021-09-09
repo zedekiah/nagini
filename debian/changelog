@@ -1,3 +1,9 @@
+nagini (0.27) unstable; urgency=low
+
+  * Set output_flag to output Targets
+
+ -- Gleb Orlov <orlovgb@yandex-team.ru>  Thu, 9 Sep 2021 15:18:24 +0300
+
 nagini (0.26) unstable; urgency=low
 
   * Better logging
@@ -25,19 +31,19 @@ nagini (0.24) unstable; urgency=low
 
 nagini (0.23) unstable; urgency=low
 
-  * Add get_start_jobs for BaseFlow 
+  * Add get_start_jobs for BaseFlow
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 28 Sep 2016 20:42:40 +0300
 
 nagini (0.22-1) unstable; urgency=low
 
-  * Fix using env 
+  * Fix using env
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 15 Sep 2016 20:55:53 +0300
 
 nagini (0.22) unstable; urgency=low
 
-  * Fix building project with new field system 
+  * Fix building project with new field system
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 15 Sep 2016 20:49:37 +0300
 
@@ -62,19 +68,19 @@ nagini (0.20) unstable; urgency=low
 
 nagini (0.19) unstable; urgency=low
 
-  * Change field logic 
+  * Change field logic
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 02 Sep 2016 20:12:33 +0300
 
 nagini (0.18) unstable; urgency=low
 
-  * Delete only existing targets by default in on_failure() 
+  * Delete only existing targets by default in on_failure()
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Sun, 10 Jul 2016 21:27:21 +0300
 
 nagini (0.17) unstable; urgency=low
 
-  * Bug fixing and small changes 
+  * Bug fixing and small changes
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 17 Jun 2016 15:44:47 +0300
 
@@ -93,19 +99,19 @@ nagini (0.15) unstable; urgency=low
 
 nagini (0.14) unstable; urgency=low
 
-  * Now load porperties in launcher 
+  * Now load porperties in launcher
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 25 May 2016 14:05:58 +0300
 
 nagini (0.13-3) unstable; urgency=low
 
-  * Supress warning messages to stdout of nagini.properties 
+  * Supress warning messages to stdout of nagini.properties
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 18 May 2016 13:38:11 +0300
 
 nagini (0.13-2) unstable; urgency=low
 
-  * Change default nagini other yaml config to nagini.other.yml 
+  * Change default nagini other yaml config to nagini.other.yml
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 18 May 2016 11:27:56 +0300
 
@@ -129,25 +135,25 @@ nagini (0.12-6) unstable; urgency=low
 
 nagini (0.12-5) unstable; urgency=low
 
-  * Fix default values in fields 
+  * Fix default values in fields
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 06 May 2016 16:12:37 +0300
 
 nagini (0.12-4) unstable; urgency=low
 
-  * Fix problems with new properties and fields system 
+  * Fix problems with new properties and fields system
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 06 May 2016 15:58:55 +0300
 
 nagini (0.12-3) unstable; urgency=low
 
-  * Another fix of get field in job 
+  * Another fix of get field in job
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 05 May 2016 18:48:48 +0300
 
 nagini (0.12-2) unstable; urgency=low
 
-  * Fix problem with recursion calling 
+  * Fix problem with recursion calling
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 05 May 2016 18:40:02 +0300
 
@@ -167,13 +173,13 @@ nagini (0.12) unstable; urgency=low
 
 nagini (0.11) unstable; urgency=low
 
-  * Add prop_name arg for every field 
+  * Add prop_name arg for every field
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 05 May 2016 15:56:25 +0300
 
 nagini (0.10) unstable; urgency=low
 
-  * Add YamlConfig class with symphony-like get method 
+  * Add YamlConfig class with symphony-like get method
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Tue, 26 Apr 2016 19:08:57 +0300
 
@@ -186,13 +192,13 @@ nagini (0.9) unstable; urgency=low
 
 nagini (0.8) unstable; urgency=low
 
-  * Add new fields: Regexp, Date, DateTime, StringMonth 
+  * Add new fields: Regexp, Date, DateTime, StringMonth
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Fri, 22 Apr 2016 14:50:59 +0300
 
 nagini (0.7) unstable; urgency=low
 
-  * Add fields to jobs as props 
+  * Add fields to jobs as props
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Thu, 21 Apr 2016 20:07:29 +0300
 
@@ -211,19 +217,19 @@ nagini (0.5-1) unstable; urgency=low
 
 nagini (0.5) unstable; urgency=low
 
-  * Add config propertry with project config to BaseJob 
+  * Add config propertry with project config to BaseJob
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Wed, 13 Apr 2016 11:16:59 +0300
 
 nagini (0.4) unstable; urgency=low
 
-  * Fix job logger 
+  * Fix job logger
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Tue, 19 Jan 2016 16:59:19 +0300
 
 nagini (0.3) unstable; urgency=low
 
-  * Fix job builder 
+  * Fix job builder
 
  -- Alexandr Litovchenko <zedlaa@yandex-team.ru>  Tue, 19 Jan 2016 13:00:08 +0300
 
